@@ -81,7 +81,7 @@ void loop() {
     if (newLoopTime - oldLoopTime >= controlLoopInterval) {   // if true run flight code
       oldLoopTime = newLoopTime;                              // reset time stamp
       blinkAliveLED();                                        // toggle blinky alive light
-    }
+
 
 
     // SENSE sense---sense---sense---sense---sense---sense---sense---sense---sense---sense---sense---sense---sense-------------
@@ -95,7 +95,7 @@ void loop() {
         break;
       }
       else if (command == "move") {
-        Serial.println("Move robot ")
+        Serial.println("Move robot ");
         Serial.println("Type stop to stop robot");
         realTimeRunStop = true;                                   // don't exit loop after running once
       }
@@ -113,6 +113,18 @@ void loop() {
     // ACT act---act---act---act---act---act---act---act---act---act---act---act---act---act---act---act---act---act-----------
        ESTOP = digitalRead(eStopPin);                                 // check ESTOP switch
 
+    // Check to see if all code ran successfully on one real-time increment
+    cycleTime = millis()-newLoopTime;                                 // calculate loop execution time
+    if( cycleTime > controlLoopInterval){
+      Serial.println("********************************************");
+      Serial.println("error - real-time has failed, stop robot!");    // loop took too long to run
+      Serial.print(" 1000 ms real-time loop took = ");
+      Serial.println(cycleTime);                                      // print loop time
+      Serial.println("********************************************");
+      break;
+    }
+    } // end of "if (newLoopTime - oldLoopTime >= controlLoopInterval)" real-time loop structure
+  } // end of "inner"   "while(realTimeRunStop == true)" real-time control loop
   // real-time-loop*******real-time-loop*******real-time-loop*******real-time-loop*******real-time-loop*******
   // real-time-loop*******real-time-loop*******real-time-loop*******real-time-loop*******real-time-loop*******
 
@@ -122,7 +134,7 @@ void loop() {
     Serial.println("| Robot control loop stopping to wait for new command ");         // send robot status to operator
     if (ESTOP == true) Serial.println("| Robot motors E-Stopped by external switch"); // send E-Stop message to OCU
 
-  }
+
 
 } // End of "outer" void loop()
 //==========================================================================================================================================================================================================================================
